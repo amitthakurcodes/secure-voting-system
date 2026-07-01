@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{user/base::layout(~{::section})}">
+<head>
+	<meta charset="UTF-8" />
+	<title>Dashboard</title>
+</head>
+<body>
+	<section class="dashboard-section">
+
+	<div class="dashboard-grid">
+
+		<!-- LEFT: Profile Card -->
+		<div class="profile-card">
+
+			<div class="profile-avatar-wrap">
+				<img th:src="@{'https://api.dicebear.com/7.x/avataaars/svg?seed=' + ${user.email}}" alt="User Avatar" class="profile-avatar">
+			</div>
+
+			<h2 class="profile-name" th:text="${user.name}">User Name</h2>
+			<p class="profile-role">Registered Voter</p>
+
+			<div class="profile-status-badge" th:if="${user.status}">
+				<span class="badge-dot badge-dot-voted"></span>
+				<span th:text="${user.status}">Voted</span>
+			</div>
+			<div class="profile-status-badge profile-status-pending" th:unless="${user.status}">
+				<span class="badge-dot badge-dot-pending"></span>
+				<span>Not Voted</span>
+			</div>
+
+			<div class="profile-details">
+				<div class="detail-row">
+					<span class="detail-icon">✉</span>
+					<div>
+						<p class="detail-label">Email Id</p>
+						<p class="detail-value" th:text="${user.email}">email@example.com</p>
+					</div>
+				</div>
+				<div class="detail-row">
+					<span class="detail-icon">☎</span>
+					<div>
+						<p class="detail-label">Phone No.</p>
+						<p class="detail-value" th:text="${user.phone}">0000000000</p>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- RIGHT: Voting Card -->
+		<div class="vote-card">
+
+			<div th:if="${session.vmsg}" class="form-msg form-msg-success">
+				<p th:text="${session.vmsg}"></p>
+				<th:block th:text="${#session.removeAttribute('vmsg')}"></th:block>
+			</div>
+
+			<div th:unless="${session.vmsg}">
+
+				<div th:if="${user.status}" class="already-voted-box">
+					<svg class="voted-check" viewBox="0 0 52 52">
+						<circle cx="26" cy="26" r="24" fill="none"/>
+						<path d="M14 27l7 7 17-17" fill="none"/>
+					</svg>
+					<h2>You have already <span th:text="${user.status}">voted</span></h2>
+					<p>Thank you for participating. Your vote has been recorded securely.</p>
+				</div>
+
+				<div th:unless="${user.status}">
+
+					<div class="vote-card-header">
+						<h2>Cast Your Vote</h2>
+						<p>Select one candidate below. This action cannot be undone.</p>
+					</div>
+
+					<form th:action="@{/addcandidate}" method="post" id="voteForm">
+
+						<input th:value="${user.email}" name="email" type="hidden">
+
+						<div class="candidate-options">
+
+							<label class="candidate-option">
+								<input type="radio" name="candidate" value="candidate1" required>
+								<span class="candidate-radio-dot"></span>
+								<span class="candidate-avatar">🕊️</span>
+								<span class="candidate-name">Candidate 1</span>
+							</label>
+
+							<label class="candidate-option">
+								<input type="radio" name="candidate" value="candidate2" required>
+								<span class="candidate-radio-dot"></span>
+								<span class="candidate-avatar">🌾</span>
+								<span class="candidate-name">Candidate 2</span>
+							</label>
+
+							<label class="candidate-option">
+								<input type="radio" name="candidate" value="candidate3" required>
+								<span class="candidate-radio-dot"></span>
+								<span class="candidate-avatar">⚖️</span>
+								<span class="candidate-name">Candidate 3</span>
+							</label>
+
+							<label class="candidate-option">
+								<input type="radio" name="candidate" value="candidate4" required>
+								<span class="candidate-radio-dot"></span>
+								<span class="candidate-avatar">🌟</span>
+								<span class="candidate-name">Candidate 4</span>
+							</label>
+
+						</div>
+
+						<button type="submit" class="btn btn-primary btn-block" id="voteSubmitBtn">Confirm Vote</button>
+
+					</form>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- CONFIRMATION MODAL -->
+	<div class="modal-overlay" id="voteConfirmModal">
+		<div class="modal-box">
+			<h3 id="confirmCandidateText">Confirm your vote?</h3>
+			<p>This action cannot be undone once submitted.</p>
+			<div class="modal-actions">
+				<button type="button" class="btn btn-outline" id="cancelVoteBtn">Cancel</button>
+				<button type="button" class="btn btn-primary" id="confirmVoteBtn">Yes, Vote</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const voteForm = document.getElementById('voteForm');
+		if (voteForm) {
+			const modal = document.getElementById('voteConfirmModal');
+			const confirmText = document.getElementById('confirmCandidateText');
+			const cancelBtn = document.getElementById('cancelVoteBtn');
+			const confirmBtn = document.getElementById('confirmVoteBtn');
+
+			// Highlight selected card
+			document.querySelectorAll('.candidate-option').forEach(opt => {
+				opt.addEventListener('click', () => {
+					document.querySelectorAll('.candidate-option').forEach(o => o.classList.remove('selected'));
+					opt.classList.add('selected');
+				});
+			});
+
+			voteForm.addEventListener('submit', function (e) {
+				e.preventDefault();
+				const selected = voteForm.querySelector('input[name="candidate"]:checked');
+				if (!selected) {
+					voteForm.reportValidity();
+					return;
+				}
+				const label = selected.closest('.candidate-option').querySelector('.candidate-name').textContent;
+				confirmText.textContent = 'Vote for ' + label + '?';
+				modal.classList.add('show');
+			});
+
+			cancelBtn.addEventListener('click', () => modal.classList.remove('show'));
+
+			confirmBtn.addEventListener('click', () => {
+				modal.classList.remove('show');
+				voteForm.submit();
+			});
+		}
+	</script>
+
+	</section>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+  <meta charset="UTF-8" />
+  <title>VoteSecure — Home</title>
+</head>
+<body>
+<section>
+
+  <div th:if="${session.msg}" class="alert-msg">
+    <p th:text="${session.msg}"></p>
+    <th:block th:text="${#session.removeAttribute('msg')}"></th:block>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1 class="hero-title">Your Vote.<br>Verified. Secure.<br>Counted.</h1>
+      <p class="hero-sub">A modern voting platform built on role-based authentication,
+        one-vote-per-user integrity, and transparent live results.</p>
+      <div class="hero-cta">
+        <a th:href="@{/register}" class="btn btn-primary">Register to Vote</a>
+        <a th:href="@{/signin}" class="btn btn-outline">Login</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <svg viewBox="0 0 260 260" class="stamp-svg" aria-hidden="true">
+        <circle cx="130" cy="130" r="110" class="stamp-ring-outer"/>
+        <circle cx="130" cy="130" r="90" class="stamp-ring-inner"/>
+        <text x="130" y="100" text-anchor="middle" class="stamp-text-top">VOTED</text>
+        
+        <path id="stampCurve" d="M 45 148 A 85 85 0 0 0 215 148" fill="none"/>
+
+        <text text-anchor="middle" class="stamp-text-bottom">
+          <textPath href="#stampCurve" startOffset="50%">SECURE • VERIFIED</textPath>
+        </text>
+        <path d="M100 130 L122 152 L165 105" class="stamp-check"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip">
+    <div class="stat-row">
+      <div class="stat-item">
+        <span class="stat-num" data-target="1450">0</span><span class="stat-suffix">M+</span>
+        <span class="stat-label">Population of India</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="968">0</span><span class="stat-suffix">M</span>
+        <span class="stat-label">Registered Voters (2024 LS)</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="66">0</span><span class="stat-suffix">%</span>
+        <span class="stat-label">Voter Turnout 2024</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="543">0</span>
+        <span class="stat-label">Lok Sabha Constituencies</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE CARDS -->
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Secure Authentication</h3>
+      <p>Role-based login with encrypted credentials, keeping voter identity protected end-to-end.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗳️</div>
+      <h3>One Vote Per User</h3>
+      <p>System-enforced integrity — every registered voter can cast exactly one verified vote.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Transparent Results</h3>
+      <p>Live vote counts, visualized clearly the moment results are declared.</p>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step"><span class="step-num">01</span><p>Register</p></div>
+      <div class="step-line"></div>
+      <div class="step"><span class="step-num">02</span><p>Login</p></div>
+      <div class="step-line"></div>
+      <div class="step"><span class="step-num">03</span><p>Vote</p></div>
+      <div class="step-line"></div>
+      <div class="step"><span class="step-num">04</span><p>Result</p></div>
+    </div>
+  </div>
+
+  <!-- SCRIPT — ab section ke ANDAR hai, isliye Thymeleaf include karega -->
+  <script>
+    function animateCounters() {
+      document.querySelectorAll('.stat-num').forEach(el => {
+        if (el.dataset.animated === "true") return;
+        el.dataset.animated = "true";
+
+        const target = +el.dataset.target;
+        const duration = 1500;
+        const start = performance.now();
+
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          el.textContent = Math.floor(progress * target);
+          if (progress < 1) requestAnimationFrame(tick);
+          else el.textContent = target;
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", animateCounters);
+    } else {
+      animateCounters();
+    }
+  </script>
+
+</section>
+</body>
+</html>
